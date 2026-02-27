@@ -1,63 +1,78 @@
-from fastapi import FastAPI, Request
+from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 
-class ValidationError(Exception):
-    """Raised when data validation fails."""
-    def __init__(self, message: str, field: str | None = None):
-        self.message = message
-        self.field = field
-        super().__init__(message)
+logger = logging.getLogger(__name__)
 
+def register_exception_handlers(app):
+    """Register all API exception handlers."""
 
-class UnauthorizedError(Exception):
-    """Raised when authentication/authorization fails."""
-    def __init__(self, message: str = "Unauthorized"):
-        self.message = message
-        super().__init__(message)
-
-
-def register_exception_handlers(app: FastAPI):
-    """Register all custom exception handlers."""
-
-    @app.exception_handler(ValidationError)
-    async def validation_exception_handler(request: Request, exc: ValidationError):
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
         correlation_id = getattr(request.state, "correlation_id", None)
-        logging.error(
-            f"[{correlation_id}] Validation failed: {exc.message} (field={exc.field})"
+
+        logger.warning(
+            "request_validation_failed",
+            extra={
+                "correlation_id": correlation_id,
+                "path": request.url.path,
+                "method": request.method,
+                "errors": exc.errors()
+            }
         )
+
         return JSONResponse(
             status_code=400,
             content={
-                "success": False,
-                "error": exc.message,
-                "field": exc.field,
                 "correlation_id": correlation_id,
+                "error": "Invalid request payload",
+                "details": exc.errors()
             },
         )
 
-    @app.exception_handler(UnauthorizedError)
-    async def unauthorized_exception_handler(request: Request, exc: UnauthorizedError):
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         correlation_id = getattr(request.state, "correlation_id", None)
-        logging.warning(f"[{correlation_id}] Unauthorized access: {exc.message}")
-        return JSONResponse(
-            status_code=401,
-            content={
-                "success": False,
-                "error": exc.message,
+
+        logger.info(
+            "http_exception",
+            extra={
                 "correlation_id": correlation_id,
+                "path": request.url.path,
+                "method": request.method,
+                "status_code": exc.status_code,
+                "detail": exc.detail
+            }
+        )
+
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "correlation_id": correlation_id,
+                "error": exc.detail
             },
         )
 
     @app.exception_handler(Exception)
-    async def generic_exception_handler(request: Request, exc: Exception):
+    async def global_exception_handler(request: Request, exc: Exception):
         correlation_id = getattr(request.state, "correlation_id", None)
-        logging.exception(f"[{correlation_id}] Unhandled exception: {exc}")
+
+        logger.exception(
+            "unhandled_exception",
+            extra={
+                "correlation_id": correlation_id,
+                "path": request.url.path,
+                "method": request.method,
+                "exception_type": exc.__class__.__name__
+            }
+        )
+
         return JSONResponse(
             status_code=500,
             content={
-                "success": False,
-                "error": "Internal server error",
                 "correlation_id": correlation_id,
+                "error": "Internal server error"
             },
         )
