@@ -35,7 +35,7 @@ def count_keys(obj: Any) -> int:
 
     return 0
 
-def run_structural_security_checks(payload: dict) -> str | None:
+def precheck_payload_structure(payload: dict) -> str | None:
     if get_depth(payload) > MAX_DEPTH:
         return "Payload nesting too deep"
 

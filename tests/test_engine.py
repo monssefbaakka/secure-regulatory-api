@@ -55,4 +55,4 @@ def test_engine_multiple_failures():
 def test_engine_rule_count():
     engine = RulesEngine()
 
-    assert len(engine.rules) == 5
+    assert len(engine.rules) == 6
