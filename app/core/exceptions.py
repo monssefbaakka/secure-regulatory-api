@@ -7,8 +7,29 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def problem_response(
+    *,
+    status: int,
+    title: str,
+    detail: str,
+    instance: str,
+    correlation_id: str | None = None,
+    type_: str | None = None,
+):
+    return JSONResponse(
+        status_code=status,
+        content={
+            "type": type_ or "about:blank",
+            "title": title,
+            "status": status,
+            "detail": detail,
+            "instance": instance,
+            "correlation_id": correlation_id,
+        },
+    )
+
+
 def register_exception_handlers(app):
-    """Register all API exception handlers."""
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
@@ -26,13 +47,13 @@ def register_exception_handlers(app):
             },
         )
 
-        return JSONResponse(
-            status_code=400,
-            content={
-                "correlation_id": correlation_id,
-                "error": "Invalid request payload",
-                "details": exc.errors(),
-            },
+        return problem_response(
+            status=400,
+            title="Invalid request payload",
+            detail="Request body is malformed or does not match schema.",
+            instance=str(request.url.path),
+            correlation_id=correlation_id,
+            type_="https://httpstatuses.com/400",
         )
 
     @app.exception_handler(StarletteHTTPException)
@@ -50,9 +71,13 @@ def register_exception_handlers(app):
             },
         )
 
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={"correlation_id": correlation_id, "error": exc.detail},
+        return problem_response(
+            status=exc.status_code,
+            title="HTTP error",
+            detail=str(exc.detail),
+            instance=str(request.url.path),
+            correlation_id=correlation_id,
+            type_=f"https://httpstatuses.com/{exc.status_code}",
         )
 
     @app.exception_handler(Exception)
@@ -69,10 +94,11 @@ def register_exception_handlers(app):
             },
         )
 
-        return JSONResponse(
-            status_code=500,
-            content={
-                "correlation_id": correlation_id,
-                "error": "Internal server error",
-            },
+        return problem_response(
+            status=500,
+            title="Internal server error",
+            detail="An unexpected error occurred.",
+            instance=str(request.url.path),
+            correlation_id=correlation_id,
+            type_="https://httpstatuses.com/500",
         )
