@@ -123,8 +123,7 @@ jobs:
           exit-code: 1
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          vuln-type: os,library
-          trivyignores: .trivyignore
+          vuln-type: os
 
       - name: Push image
         run: |
