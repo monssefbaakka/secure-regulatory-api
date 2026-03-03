@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
 env:
   ALLOWED_API_KEYS: '["${{ secrets.API_KEY_1 }}","${{ secrets.API_KEY_2 }}"]'
