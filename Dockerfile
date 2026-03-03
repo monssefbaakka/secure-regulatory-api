@@ -5,8 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
        build-essential \
        gcc \
        libffi-dev \
@@ -18,7 +17,7 @@ RUN apt-get update && apt-get upgrade -y \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools==78.1.1 wheel==0.46.2
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -31,8 +30,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
        libssl3 \
        libexpat1 \
        libsqlite3-0 \
@@ -44,6 +42,10 @@ WORKDIR /app
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app /app
+
+RUN rm -rf /opt/venv/lib/python3.12/site-packages/pip* \
+           /opt/venv/lib/python3.12/site-packages/setuptools* \
+           /opt/venv/lib/python3.12/site-packages/wheel*
 
 RUN chown -R appuser:appuser /app /opt/venv
 
