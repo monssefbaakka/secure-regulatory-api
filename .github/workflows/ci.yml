@@ -104,29 +104,29 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Pull latest image for cache
-        run: docker pull myorg/secure-regulatory-api:latest || true
+        run: docker pull lidiafcarvalho/secure-regulatory-api:latest || true
 
       - name: Build Docker image
         run: |
           docker buildx build \
             --load \
-            --cache-from type=registry,ref=myorg/secure-regulatory-api:latest \
-            --tag myorg/secure-regulatory-api:${{ github.sha }} \
-            --tag myorg/secure-regulatory-api:latest \
+            --cache-from type=registry,ref=lidiafcarvalho/secure-regulatory-api:latest \
+            --tag lidiafcarvalho/secure-regulatory-api:${{ github.sha }} \
+            --tag lidiafcarvalho/secure-regulatory-api:latest \
             -f Dockerfile .
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: myorg/secure-regulatory-api:${{ github.sha }}
+          image-ref: lidiafcarvalho/secure-regulatory-api:${{ github.sha }}
           format: table
           exit-code: 1
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           vuln-type: os,library
-          ignorefile: .trivyignore
+          trivyignores: .trivyignore
 
       - name: Push image
         run: |
-          docker push myorg/secure-regulatory-api:${{ github.sha }}
-          docker push myorg/secure-regulatory-api:latest
+          docker push lidiafcarvalho/secure-regulatory-api:${{ github.sha }}
+          docker push lidiafcarvalho/secure-regulatory-api:latest
