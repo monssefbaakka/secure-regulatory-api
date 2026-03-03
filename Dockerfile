@@ -48,7 +48,6 @@ RUN rm -rf /opt/venv/lib/python3.12/site-packages/pip* \
            /opt/venv/lib/python3.12/site-packages/wheel*
 
 RUN chown -R appuser:appuser /app /opt/venv
-
 USER appuser
 
 EXPOSE 8000
