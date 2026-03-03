@@ -2,12 +2,13 @@ from app.rules.business_rules import (
     AmountMaxLimitRule,
     EmailDomainRule,
     UserIdUUIDRule,
-    NoEmptyStringsRule
+    NoEmptyStringsRule,
 )
 from app.rules.security_rules import (
     NoScriptInjectionRule,
     NoSuspiciousKeysRule,
 )
+
 
 def test_amount_max_limit_pass():
     rule = AmountMaxLimitRule()
@@ -16,7 +17,8 @@ def test_amount_max_limit_pass():
     result = rule.evaluate(payload)
 
     assert result.status == "passed"
-    
+
+
 def test_amount_max_limit_fail():
     rule = AmountMaxLimitRule()
 
@@ -24,7 +26,8 @@ def test_amount_max_limit_fail():
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_email_domain_allowed():
     rule = EmailDomainRule()
 
@@ -32,7 +35,8 @@ def test_email_domain_allowed():
     result = rule.evaluate(payload)
 
     assert result.status == "passed"
-    
+
+
 def test_email_domain_blocked():
     rule = EmailDomainRule()
 
@@ -40,7 +44,8 @@ def test_email_domain_blocked():
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_valid_uuid():
     rule = UserIdUUIDRule()
 
@@ -48,7 +53,8 @@ def test_valid_uuid():
     result = rule.evaluate(payload)
 
     assert result.status == "passed"
-    
+
+
 def test_invalid_uuid():
     rule = UserIdUUIDRule()
 
@@ -56,7 +62,8 @@ def test_invalid_uuid():
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_empty_string_detected():
     rule = NoEmptyStringsRule()
 
@@ -64,7 +71,8 @@ def test_empty_string_detected():
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_suspicious_key_detected():
     rule = NoSuspiciousKeysRule()
 
@@ -72,38 +80,33 @@ def test_suspicious_key_detected():
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_script_injection_detected():
     rule = NoScriptInjectionRule()
 
-    payload = {
-        "comment": "<script>alert('xss')</script>"
-    }
+    payload = {"comment": "<script>alert('xss')</script>"}
 
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
     assert result.severity == "critical"
-    
+
+
 def test_script_injection_nested():
     rule = NoScriptInjectionRule()
 
-    payload = {
-        "user": {
-            "bio": "Hello <script>malicious()</script>"
-        }
-    }
+    payload = {"user": {"bio": "Hello <script>malicious()</script>"}}
 
     result = rule.evaluate(payload)
 
     assert result.status == "failed"
-    
+
+
 def test_script_injection_not_present():
     rule = NoScriptInjectionRule()
 
-    payload = {
-        "comment": "Hello world"
-    }
+    payload = {"comment": "Hello world"}
 
     result = rule.evaluate(payload)
 

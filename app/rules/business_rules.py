@@ -3,6 +3,7 @@ from uuid import UUID
 from app.rules.base import BaseRule
 from app.schemas.report import RuleResultSchema
 
+
 class NoEmptyStringsRule(BaseRule):
     name = "no_empty_strings"
 
@@ -30,14 +31,11 @@ class NoEmptyStringsRule(BaseRule):
                 rule=self.name,
                 status="failed",
                 severity="medium",
-                details="Empty string detected"
+                details="Empty string detected",
             )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")
+
 
 class AmountMaxLimitRule(BaseRule):
     """
@@ -55,19 +53,17 @@ class AmountMaxLimitRule(BaseRule):
                 rule=self.name,
                 status="failed",
                 severity="high",
-                details=f"Amount exceeds maximum allowed ({self.MAX_AMOUNT})"
+                details=f"Amount exceeds maximum allowed ({self.MAX_AMOUNT})",
             )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")
+
 
 class EmailDomainRule(BaseRule):
     """
     Allows only specific business email domains.
     """
+
     name = "email_domain_allowed"
     ALLOWED_DOMAINS = {"company.com"}
 
@@ -82,30 +78,24 @@ class EmailDomainRule(BaseRule):
                     rule=self.name,
                     status="failed",
                     severity="medium",
-                    details=f"Email domain '{domain}' not allowed"
+                    details=f"Email domain '{domain}' not allowed",
                 )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")
+
 
 class UserIdUUIDRule(BaseRule):
     """
     Ensures user_id is a valid UUID.
     """
+
     name = "user_id_must_be_uuid"
 
     def evaluate(self, payload: Dict[str, Any]) -> RuleResultSchema:
         user_id = payload.get("user_id")
 
         if user_id is None:
-            return RuleResultSchema(
-                rule=self.name,
-                status="passed",
-                severity="low"
-            )
+            return RuleResultSchema(rule=self.name, status="passed", severity="low")
 
         try:
             UUID(str(user_id))
@@ -114,11 +104,7 @@ class UserIdUUIDRule(BaseRule):
                 rule=self.name,
                 status="failed",
                 severity="high",
-                details="user_id must be a valid UUID"
+                details="user_id must be a valid UUID",
             )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")

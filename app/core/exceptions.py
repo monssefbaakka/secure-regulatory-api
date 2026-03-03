@@ -6,10 +6,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def register_exception_handlers(app):
     """Register all API exception handlers."""
+
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
         correlation_id = getattr(request.state, "correlation_id", None)
 
         logger.warning(
@@ -18,8 +22,8 @@ def register_exception_handlers(app):
                 "correlation_id": correlation_id,
                 "path": request.url.path,
                 "method": request.method,
-                "errors": exc.errors()
-            }
+                "errors": exc.errors(),
+            },
         )
 
         return JSONResponse(
@@ -27,7 +31,7 @@ def register_exception_handlers(app):
             content={
                 "correlation_id": correlation_id,
                 "error": "Invalid request payload",
-                "details": exc.errors()
+                "details": exc.errors(),
             },
         )
 
@@ -42,16 +46,13 @@ def register_exception_handlers(app):
                 "path": request.url.path,
                 "method": request.method,
                 "status_code": exc.status_code,
-                "detail": exc.detail
-            }
+                "detail": exc.detail,
+            },
         )
 
         return JSONResponse(
             status_code=exc.status_code,
-            content={
-                "correlation_id": correlation_id,
-                "error": exc.detail
-            },
+            content={"correlation_id": correlation_id, "error": exc.detail},
         )
 
     @app.exception_handler(Exception)
@@ -64,14 +65,14 @@ def register_exception_handlers(app):
                 "correlation_id": correlation_id,
                 "path": request.url.path,
                 "method": request.method,
-                "exception_type": exc.__class__.__name__
-            }
+                "exception_type": exc.__class__.__name__,
+            },
         )
 
         return JSONResponse(
             status_code=500,
             content={
                 "correlation_id": correlation_id,
-                "error": "Internal server error"
+                "error": "Internal server error",
             },
         )

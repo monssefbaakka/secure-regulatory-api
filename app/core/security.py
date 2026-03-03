@@ -5,13 +5,14 @@ from typing import Any
 MAX_DEPTH = 20
 MAX_KEYS = 5000
 
+
 def validate_api_key(request: Request):
     api_key = request.headers.get("x-api-key")
     if not api_key or api_key not in settings.ALLOWED_API_KEYS:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
         )
+
 
 def get_depth(obj: Any, level: int = 0) -> int:
     if isinstance(obj, dict):
@@ -26,6 +27,7 @@ def get_depth(obj: Any, level: int = 0) -> int:
 
     return level
 
+
 def count_keys(obj: Any) -> int:
     if isinstance(obj, dict):
         return len(obj) + sum(count_keys(v) for v in obj.values())
@@ -35,6 +37,7 @@ def count_keys(obj: Any) -> int:
 
     return 0
 
+
 def precheck_payload_structure(payload: dict) -> str | None:
     if get_depth(payload) > MAX_DEPTH:
         return "Payload nesting too deep"
@@ -43,6 +46,7 @@ def precheck_payload_structure(payload: dict) -> str | None:
         return "Payload too large"
 
     return None
+
 
 def mask_sensitive_data(payload: Any, fields_to_mask: list[str]) -> Any:
     if isinstance(payload, dict):

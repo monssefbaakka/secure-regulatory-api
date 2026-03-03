@@ -3,6 +3,7 @@ from app.rules.base import BaseRule
 from app.schemas.report import RuleResultSchema
 import re
 
+
 class NoScriptInjectionRule(BaseRule):
     name = "no_script_injection"
     SCRIPT_PATTERN = re.compile(r"<script.*?>", re.IGNORECASE)
@@ -32,14 +33,11 @@ class NoScriptInjectionRule(BaseRule):
                 rule=self.name,
                 status="failed",
                 severity="critical",
-                details="Script injection pattern detected"
+                details="Script injection pattern detected",
             )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")
+
 
 class NoSuspiciousKeysRule(BaseRule):
     name = "no_suspicious_keys"
@@ -66,11 +64,7 @@ class NoSuspiciousKeysRule(BaseRule):
                 rule=self.name,
                 status="failed",
                 severity="high",
-                details=f"Suspicious keys detected: {list(set(found))}"
+                details=f"Suspicious keys detected: {list(set(found))}",
             )
 
-        return RuleResultSchema(
-            rule=self.name,
-            status="passed",
-            severity="low"
-        )
+        return RuleResultSchema(rule=self.name, status="passed", severity="low")

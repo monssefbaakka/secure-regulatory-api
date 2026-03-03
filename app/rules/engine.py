@@ -13,6 +13,7 @@ from app.rules.security_rules import (
     NoScriptInjectionRule,
 )
 
+
 class RulesEngine:
     def __init__(self, rules: List[BaseRule] | None = None):
         self.rules = rules or [
@@ -20,7 +21,6 @@ class RulesEngine:
             EmailDomainRule(),
             NoEmptyStringsRule(),
             UserIdUUIDRule(),
-
             NoSuspiciousKeysRule(),
             NoScriptInjectionRule(),
         ]
