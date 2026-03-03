@@ -124,6 +124,7 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           vuln-type: os,library
+          ignorefile: .trivyignore
 
       - name: Push image
         run: |
