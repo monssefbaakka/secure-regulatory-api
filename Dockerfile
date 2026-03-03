@@ -13,7 +13,7 @@ RUN apt-get update && \
 COPY requirements.txt .
 
 RUN python -m venv /install && \
-    /install/bin/pip install --upgrade pip "setuptools>=78.1.1" "wheel>=0.46.2" \
+    /install/bin/pip install --upgrade pip "setuptools>=78.1.1" "wheel>=0.46.2" && \
     /install/bin/pip install --no-cache-dir -r requirements.txt
 
 COPY . .
